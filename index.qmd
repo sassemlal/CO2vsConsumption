@@ -1,0 +1,186 @@
+---
+title: |
+    ![](banner.png)
+subtitle: |
+    **"Food Consumption and CO2 Emissions"**  
+    
+    "Feasting on Carbon; Exploring the Link between Food Consumption and CO2 Emissions"
+    
+pagetitle: "Food Consumption and CO2 Emissions"
+     
+author: "<br />Safaa Assemlal"
+institute: "University of Arizona"
+
+format:
+  revealjs:
+    incremental: true  
+    embed-resources: true
+    standalone: false
+    theme: simple
+    #navigation-mode: vertical
+    controls-tutorial: true
+    show-slide-number: print
+    email-obfuscation: javascript
+    # chalkboard:
+    #  theme: whiteboard
+    #  boardmarker-width: 5
+    #  buttons: true
+
+editor: source
+
+execute: 
+  cache: false
+  echo: false
+  message: false
+  error: false
+
+toc: false
+slide-number: false
+number-sections: false
+---
+
+## Table of Contents
+::: {.incremental}
+- Introduction
+- Question
+- What food category is mostly consumed in each country
+- CO2 vs Consumption
+- Conclusion
+- What we can do to help
+:::
+
+## Link to this slide deck!
+
+to access this slide deck on a different device: 
+```{r}
+library(qrcode)
+
+# Generate the QR code
+qr <- qrcode::qr_code("https://ryanstraight.github.io/in23/index.html")
+
+# Plot the QR code with specified position and size
+plot(qr, xlim = c(0, 10), ylim = c(0, 10), xlab = "", ylab = "", xaxt = "n", yaxt = "n", asp = 1)
+
+```
+
+
+```{r}
+#| label: setup
+#| include: false
+# Anything you want to load can go here.
+
+food_consumption <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-18/food_consumption.csv')
+
+library(tidyverse)
+library(tidytuesdayR)
+library(ggplot2)
+library(here)
+library(broom)
+library(knitr)
+library(qrcode)
+library(magick)
+```
+
+
+
+#  {#Introduction data-menu-title="Introduction" background="#B0EFD7" background-image="banner.png" background-size="40%" background-position="right 5% top 5%"}
+
+[Introduction]{.r-fit-text}
+
+## About the data set
+
+
+- This study examines carbon emissions associated with food and diets.
+- Conducted by nu3.de, a German nutrition company, it analyzes greenhouse gas emissions during food production, processing, and transportation.
+- Lamb and goat have the most significant environmental impact, while wheat and soybeans are more sustainable choices with lower carbon footprints.
+- By reducing meat and dairy consumption and increasing intake of plant-based foods, we can reduce our individual carbon footprints and contribute to combating climate change.
+
+
+## Question
+
+ Do the patterns of CO2 emissions and consumption values vary significantly across different regions or countries, and if so, what are the key drivers of these variations?
+ 
+- This question would help our understanding the relationship between regional factors, food consumption, and environmental sustainability, and give us an understanding of how to reduce CO2 emissions and promote sustainable food systems.
+
+
+::: notes
+
+:::
+
+#  {#anotherexampleH data-menu-title="What food category is mostly consumed in each country" background="#B0EFD7" background-image="banner.png" background-size="40%" background-position="right 5% top 5%"}
+
+[What food category is mostly consumed in each country]{.r-fit-text}
+
+
+## What food category is mostly consumed in each country  {.smaller .scrollable}
+
+While scrolling through this slide, you can see all the different countries in the data set and their most consumed food, the most consumed food category in the data set is "Milk- inc. Cheese"
+
+```{r}
+library(knitr)
+food_consumption %>%
+  group_by(country) %>%
+  slice_max(order_by = consumption) %>%
+  select(country, food_category) %>%
+  kable(col.names = c("Country", "Most Consumed Food"), align = "c")
+```
+
+
+## CO2 vs Consumption {.smaller}
+This graph shows the average CO2 emission per food category. This graph shows that lamb and goat are the most inefficient and should be avoided and that wheat and wheat products as well as soybeans produce the least CO2 emission in the list of foods. 
+
+```{r}
+food_consumption %>%
+  filter(consumption != 0) %>%
+  mutate(co2perfood = co2_emmission/consumption) %>%
+  group_by(food_category) %>%
+  summarise(avg_co2perfood = mean(co2perfood)) %>%
+  ggplot(aes(x = reorder(food_category, avg_co2perfood), y = avg_co2perfood, fill = food_category)) + 
+  geom_bar(stat = "identity") +
+  geom_col() +
+  coord_flip() +
+  theme(legend.position = "none") +
+  xlab("Food Category") +
+  ylab("Average CO2 emissions per unit of consumption") +
+  ggtitle("Average CO2 emissions per food category")
+```
+
+## CO2 vs Consumption (con.) {.smaller}
+
+The line graph shows each country, their consumption of each food in the list of food categories and the CO2 emission from the consumption. This graph shows that while Beef is not as consumed in any of the countries, it still emits a significant amount of CO2.
+
+```{r}
+food_consumption %>%
+  ggplot(aes(x = consumption, y = co2_emmission, color = food_category)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  xlab("Consumption") +
+  ylab("CO2 Emissions") +
+  ggtitle("CO2 Emissions vs. Consumption by Food Category")
+```
+
+
+#  {#emphasis data-menu-title="Conclusion" background="#B0EFD7" background-image="banner.png" background-size="40%" background-position="right 5% top 5%"}
+
+[CONCLUSION]{.r-fit-text}
+
+## Conclusion 
+
+- Food consumption plays a significant role in CO2 emissions and their impact on the environment.
+- Making conscious dietary choices can have a substantial effect on reducing greenhouse gas production.
+- Research has shown that there are significant variations in both CO2 emission and consumption rates throughout different countries and that there are several key factors that contribute to these variations
+- Taking steps towards sustainable food consumption can have positive impacts on both individual well-being and the environment.
+
+## What we can do to help
+
+- Increase consumption of plant based foods such as fruits, vegetables, legumes, and whole grains.
+- Reduce consumption of meat, particularly red meat and processed meat.
+- Choose sustainable sourced seafood options and limit fish high in mercury or overfished species.
+- Opt for organic and locally grown produce to support sustainable agriculture practices.
+- Minimize food waste by planning meals, storing food properly, and repurposing leftovers.
+
+Together, we can lower CO2 emissions and ensure a healthy planet for future generations.
+
+#  {#end data-menu-title="Earth" background-image="https://media.giphy.com/media/M52z7SjnRKHHG/giphy.gif" background-size="80%"}
+
+
